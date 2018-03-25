@@ -5,46 +5,45 @@ import pdb
 def id3_generate_tree(examples, attributes):
     # Si todos los ejemplos tienen el mismo valor -> Etiqueto con ese valor
     if proportion_examples_true(examples) == 1:
-        return Tree(True)
+        return True
     elif proportion_examples_true(examples) == 0:
-        return Tree(False)
+        return False
 
     # Si no me quedan atributos -> Etiqueto con el valor más común
     elif len(attributes) == 0:
         if proportion_examples_true(examples) > 0.5:
-            return Tree(True)
+            return True
         else:
-            return Tree(False)
+            return False
 
     # En caso contrario
     else:
         # Obtengo el atributo que mejor clasifica los ejemplo
         att = get_best_attribute(examples, attributes)
-
+        new_attributes = list(attributes)
+        new_attributes.remove(att)
         # Creo el árbol para devolver
-        tree = Tree(att)
+
+        tree2 = Tree(att)
         for value in get_possible_values(examples, att):
+            if value=='mediaDed':
+                pdb.set_trace()
             ejemplos_vi = get_examples_for_value(examples, att, value)
 
             # Si ejemplos_vi es vacio -> Etiqueto con el valor más probable
             # Aca habria que revisar lo de valor mas probable
             if len(ejemplos_vi) == 0:
                 if proportion_examples_true(examples) > 0.5:
-                    tree.add_leaf(value, True)
+                    tree2.add_option(value, True)
                 else:
-                    tree.add_leaf(value, False)
+                    tree2.add_option(value, False)
 
             # En caso contrario -> ID3(Ejemplos_vi, Atributos - {A} )
             else:
-                new_attributes = list(attributes)
-                new_attributes.remove(att)
-                tree.add_child(value, id3_generate_tree(ejemplos_vi,new_attributes) )
-                if att=='dedicacion':
-                    print(value)
-                    asd = id3_generate_tree(ejemplos_vi,new_attributes)
-                    pdb.set_trace()
+                asd = id3_generate_tree(ejemplos_vi,new_attributes)
+                tree2.add_option(value, asd)
 
-        return tree
+        return tree2
 
 
 def proportion_examples_true(examples):
