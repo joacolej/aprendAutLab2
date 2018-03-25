@@ -23,7 +23,6 @@ def id3_generate_tree(examples, attributes):
 
         # Creo el árbol para devolver
         tree = Tree(att)
-
         for value in get_possible_values(examples, att):
             ejemplos_vi = get_examples_for_value(examples, att, value)
 
@@ -42,6 +41,7 @@ def id3_generate_tree(examples, attributes):
                 tree.add_child(value, id3_generate_tree(ejemplos_vi,new_attributes) )
                 if att=='dedicacion':
                     print(value)
+                    asd = id3_generate_tree(ejemplos_vi,new_attributes)
                     pdb.set_trace()
 
         return tree
@@ -80,4 +80,5 @@ def get_possible_values(examples, att):
     possible_values = set()
     for x in examples:
         possible_values.add(x[att])
-    return possible_values
+    possible_list = sorted(list(possible_values))
+    return possible_list
