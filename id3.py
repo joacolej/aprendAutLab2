@@ -24,26 +24,30 @@ def id3_generate_tree(examples, attributes):
         new_attributes.remove(att)
         # Creo el árbol para devolver
 
-        tree2 = Tree(att)
+#        tree2 = Tree(att)
+        opciones = {}
+
         for value in get_possible_values(examples, att):
-            if value=='mediaDed':
-                pdb.set_trace()
             ejemplos_vi = get_examples_for_value(examples, att, value)
 
             # Si ejemplos_vi es vacio -> Etiqueto con el valor más probable
             # Aca habria que revisar lo de valor mas probable
             if len(ejemplos_vi) == 0:
                 if proportion_examples_true(examples) > 0.5:
-                    tree2.add_option(value, True)
+                    #tree2.add_option(value, True)
+                    opciones[value]= True
                 else:
-                    tree2.add_option(value, False)
+                    #tree2.add_option(value, False)
+                    opciones[value] = False
 
             # En caso contrario -> ID3(Ejemplos_vi, Atributos - {A} )
             else:
                 asd = id3_generate_tree(ejemplos_vi,new_attributes)
-                tree2.add_option(value, asd)
+                #tree2.add_option(value, asd)
+                opciones[value] = asd
 
-        return tree2
+        #return tree2
+        return Tree(att,opciones)
 
 
 def proportion_examples_true(examples):
@@ -59,21 +63,24 @@ def get_best_attribute(examples, attributes):
     ret = attributes[0]
     for att in attributes:
         if get_gain(examples, att) > get_gain(examples, ret):
-            ret = attribute
+            ret = att
     return ret
-
 
 def entropy(examples):
     pos_prop = proportion_examples_true(examples)
     neg_prop = 1 - pos_prop
-    return - pos_prop * math.log(pos_prop) + (neg_prop) * math.log(neg_prop)
+    if pos_prop == 0 or neg_prop == 0:
+        return 0
+    entropia = - pos_prop * math.log(pos_prop,2) - neg_prop * math.log(neg_prop,2)
+    return entropia
 
 def get_gain(examples, attribute):
-    total_entropy = 0
-    for value in attribute:
-        examples_from_value = [x for x in examples if x[attribute] == value]
-        total_entropy += (len(examples_from_value)/len(examples))*entropy(examples_from_value)
-    return entropy(examples) - total_entropy
+    entropia = 0
+    cant_ejemplos = len(examples)
+    for value in get_possible_values(examples,attribute):
+        subset = get_examples_for_value(examples, attribute, value)
+        entropia += ((len(subset)/cant_ejemplos) * entropy(subset))
+    return  entropy(examples) - entropia
 
 def get_possible_values(examples, att):
     possible_values = set()

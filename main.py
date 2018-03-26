@@ -14,4 +14,3 @@ atributos = ['dedicacion','dificultad', 'horario', 'humedad', 'humordoc']
 print('-------------------------------')
 ricoArbolito = id3_generate_tree(data, atributos)
 ricoArbolito.print_tree()
-pdb.set_trace()

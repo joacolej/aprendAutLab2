@@ -10,7 +10,10 @@ class Tree:
 
     def print_tree(self):
         print (self.attribute)
-        print(self.options)
-        if type(self.options) == list:
-            for value in self.options:
-                pass
+#        print(self.options)
+        for key, value in self.options.items():
+            print(key)
+            if type(value) == Tree:
+                value.print_tree()
+            else:
+                print(value)
