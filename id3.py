@@ -70,6 +70,77 @@ def id3_generate(ds, attributes):
 def id3_classify(tree, attributes):
     return False
 
+# Using a dataset "ds" of training examples and a list "attributes" of attributes, generates a decision tree using ID3
+# This version of id3 adds an strategy for continuous and empty values:
+# Continuous:
+# Empty: In every iteration adds to the empty values, the most likely value in the current dataset for that attribute
+def id3_generate_continuous_and_empty_1(ds, attributes):
+
+    # Border Case: Every example is labeled true
+    # Returns true (dont care if is root or not, ID3 is recursive)
+    if proportion_examples_true(ds) == 1:
+        return True
+
+    # Border Case: Every example is labeled false
+    # Returns false (dont care if is root, ID3 is recursive)
+    elif proportion_examples_true(ds) == 0:
+        return False
+
+    # Border Case: There are no more attributes
+    # Returns the most likely value between true and false
+    elif len(attributes) == 0:
+        if proportion_examples_true(ds) > 0.5:
+            return True
+        else:
+            return False
+
+    # No Border Case
+    else:
+
+        # 1. Get the attribute that best classifies ds (highest information gain)
+        att = get_best_attribute(ds, attributes)
+        #print (att)
+
+        # Aux: Delete the chosen attribute, it will not be used in further iterations
+        new_attributes = list(attributes)
+        new_attributes.remove(att)
+
+        # 2. Create an empty dictionary which will have the children nodes for the tree (booleans or nodes)
+        options = {}
+
+        # 3. Iterate through the possible values for "att" in "ds"
+        for value in get_possible_values(ds, att):
+
+            # 3.1. Get a list of examples that match value "value" in attribute "att"
+            examples_vi = get_examples_for_value(ds, att, value)
+
+            # 3.2. If there are no examples for the value, the answer is the most likely value between true and false
+            if len(examples_vi) == 0:
+                if proportion_examples_true(ds) > 0.5:
+                    options[value]= True
+                else:
+                    options[value] = False
+
+            # 3.3. If there are still examples for the value, triggers recursive execution
+            # This time using the set of examples with value "value" in "att" as dataset
+            # and excluding "att" from the list of attributes
+            else:
+                node = id3_generate(examples_vi, new_attributes)
+                options[value] = node
+
+        # 4. Create and return the tree node
+        return Tree(att, options)
+
+# AUXILIAR METHODS PART B -------------------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+def get_most_likely_value(ds, att):
+
+    values = get_possible_values(ds, att)
+
+
+
 # AUXILIAR METHODS --------------------------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------------------------------------------------
 
