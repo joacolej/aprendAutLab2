@@ -1,34 +1,52 @@
+# DEPENDENCIES ------------------------------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------------------------------------------------------------
 import pdb
+
+# MAIN --------------------------------------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------------------------------------------------------------
+
 class Tree:
 
-    def __init__(self, attribute, child = []):
-        self.attribute = attribute
-        self.tree = child
+    # CONSTRUCTOR ---------------------------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------------------------------------------------------------
+    
+    def __init__(self, attribute, childs = None):
 
-    def get_value(self):
-        return value
+        # String identifying node's attribute
+        self.attribute = attribute 
+        
+        # Dictionary with keys from attribute's options
+        # If is not leaf, values are children nodes,
+        # Else, values are booleans giving the answer
+        if childs is None:
+            self.options = {}
+        else:
+            self.options = childs
 
-    def set_value(self, attribute):
-        self.attribute = attribute
 
-    def add_child(self, value, child):
-        self.tree.append( Tree(value,child) )
+    # MAIN METHODS --------------------------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-    def add_leaf(self,value,result):
-        self.tree.append( Tree(value,result) )
+    # Adds a "result" with key "option" to options dictionary
+    # If option is to be a leaf, result is a boolean. Else, it is a child node
+    def add_option(self, option, result):
+        self.options[option] = result
 
-    def is_leaf(self):
-        return not isinstance(self.tree, dict)
+    # Returns the value for "option", could be an answer or a child node
+    def get_option(self, option):
+        return self.options[option]
+
+
+    # AUXILIAR METHODS ----------------------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
     def print_tree(self):
+
         print (self.attribute)
-        print(self.tree)
-        if type(self.tree) == list:
-            for value in self.tree:
-                pass
-#                print(key)
-                #print(value.print_tree())
-                #print(value.print_tree())
-#        else:
-#            print("NO ES LISTA")
-#            self.tree.print_tree()
+        
+        for key, value in self.options.items():
+            print(key)
+            if type(value) == Tree:
+                value.print_tree()
+            else:
+                print(value)
