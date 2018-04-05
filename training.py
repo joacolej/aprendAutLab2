@@ -22,16 +22,12 @@ dataset2 = [ {'clima': 'calido' ,'lluvia': 'si',  'horario': 'matutino', 'truth'
         ]
 
 
-
-
 # MAIN --------------------------------------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
 
 	attributes = get_attributes_from_dataset(dataset1)
-	print(attributes)
-	print()
 	tree = id3_generate(dataset1, attributes)
 	
 	if type(tree) is bool:

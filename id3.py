@@ -67,14 +67,36 @@ def id3_generate(ds, attributes):
         return Tree(att, options)
 
 # Using a decision tree "tree", classifies a valid example
-def id3_classify(tree, attributes):
-    return False
+def id3_classify(tree, example):
+    
+    # 1. Choose the current attribute in the tree
+    current_att = tree.attribute
+
+    # 2. Get the value in the example for the current attribute
+    example_att = example[current_att]
+    
+    # 3. Get the subtree for that value
+    branch = tree.options[example_att]
+    if type(branch) == Tree:
+        # If it is a tree, recursive call using subtree as root
+        return id3_classify(branch, example)
+    else:
+        # Otherwise, the branch is the answer
+        return branch
 
 # Using a dataset "ds" of training examples and a list "attributes" of attributes, generates a decision tree using ID3
-# This version of id3 adds an strategy for continuous and empty values:
-# Continuous:
-# Empty: In every iteration adds to the empty values, the most likely value in the current dataset for that attribute
-def id3_generate_continuous_and_empty_1(ds, attributes):
+# This version of id3 adds an strategy for continuous and missing values. The arguments "continuousOption" and "missingOption"
+# are for choosing which strategy will be used. There are 3 possible values for each:
+# -------------------------------------------------------------------------------------------------------------------------
+# Continuous 0:
+# Continuous 1: 
+# Continuous different than 0,1: Does not support continuous values
+# -------------------------------------------------------------------------------------------------------------------------
+# Missing 0: Adds to the missing values the most likely value in the current dataset for that attribute
+# Missing 1: Adds a probability to each branch of the attribute if it has missing values, which will be used to classify
+# Missing different than 0,1: Does not support empty values
+# -------------------------------------------------------------------------------------------------------------------------
+def id3_generate_better(ds, attributes, continuousOption, missingOption):
 
     # Border Case: Every example is labeled true
     # Returns true (dont care if is root or not, ID3 is recursive)
@@ -125,6 +147,7 @@ def id3_generate_continuous_and_empty_1(ds, attributes):
             # This time using the set of examples with value "value" in "att" as dataset
             # and excluding "att" from the list of attributes
             else:
+                
                 node = id3_generate(examples_vi, new_attributes)
                 options[value] = node
 
@@ -134,11 +157,12 @@ def id3_generate_continuous_and_empty_1(ds, attributes):
 # AUXILIAR METHODS PART B -------------------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------------------------------------------------
 
+def fill_missing_values(ds, attributes):
+    return []
+
 
 def get_most_likely_value(ds, att):
-
     values = get_possible_values(ds, att)
-
 
 
 # AUXILIAR METHODS --------------------------------------------------------------------------------------------------------------------------------------
