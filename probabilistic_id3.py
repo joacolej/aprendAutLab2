@@ -45,9 +45,12 @@ def id3_generate(ds, attributes):
 
         # 3. Iterate through the possible values for "att" in "ds"
         for value in get_possible_values(ds, att):
+            total_examples = len(ds) - len(get_unknown_examples_for_value(ds,att))
 
+            cant_examples = len(get_examples_for_value(ds, att, value))
             # 3.1. Get a list of examples that match value "value" in attribute "att"
-            examples_vi = get_examples_for_value(ds, att, value)
+            examples_vi = get_examples_for_value(ds, att, value) + get_unknown_examples_for_value(ds,att)
+
 
             # 3.2. If there are no examples for the value, the answer is the most likely value between true and false
             if len(examples_vi) == 0:
@@ -61,7 +64,7 @@ def id3_generate(ds, attributes):
             # and excluding "att" from the list of attributes
             else:
                 node = id3_generate(examples_vi, new_attributes)
-                options[value] = node
+                options[value] = (node, cant_examples/total_examples)
 
         # 4. Create and return the tree node
         return Tree(att, options)
@@ -212,7 +215,7 @@ def get_gain(ds, att):
     cant_ejemplos = len(ds)
 
     # Handle missing attributes
-    assign_most_likely_value(ds, att)
+    #assign_most_likely_value(ds, att)
 
     for value in get_possible_values(ds,att):
         subset = get_examples_for_value(ds, att, value)
@@ -225,13 +228,18 @@ def get_possible_values(ds, att):
     possible_values = set()
 
     for x in ds:
-        possible_values.add(x[att])
+        # remove missing attributes
+        if x[att] != '?':
+            possible_values.add(x[att])
 
     return sorted(list(possible_values))
 
 # Given a dataset "ds", an attribute "att" and a value "value", returns the list of examples in "ds" which have value "value" for attribute "att"
 def get_examples_for_value(examples, att, value):
     return [x for x in examples if x[att] == value]
+
+def get_unknown_examples_for_value(ds,att):
+    return [x for x in ds if x[att] == '?']
 
 # Given a dataset "ds", returns the entropy for the set of examples
 def entropy(ds):
@@ -241,3 +249,28 @@ def entropy(ds):
         return 0
     entropia = - pos_prop * math.log(pos_prop,2) - neg_prop * math.log(neg_prop,2)
     return entropia
+
+def classify(tree, example):
+    prob_pos = 0
+    prob_neg = 0
+    if example[tree.attribute] == '?':
+        for key, value in tree.options.items():
+            item , prob = value
+            if type(item) == bool:
+                if item == True:
+                    prob_pos += 1
+                else:
+                    prob_neg += 1
+            else:
+                recursion = classify(item, example)
+                prob_pos += recursion[0] * prob
+                prob_neg += recursion[1] * prob
+            return (prob_pos, prob_neg)
+    else:
+        item , prob = tree.options[example[tree.attribute]]
+        if type(item) == bool:
+            if item == True:
+                return (1,0)
+            else:
+                return (0,1)
+        return  classify(item , example)

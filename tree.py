@@ -9,12 +9,12 @@ class Tree:
 
     # CONSTRUCTOR ---------------------------------------------------------------------------------------------------------------------------------------
     # ---------------------------------------------------------------------------------------------------------------------------------------------------
-    
+
     def __init__(self, attribute, childs = None):
 
         # String identifying node's attribute
-        self.attribute = attribute 
-        
+        self.attribute = attribute
+
         # Dictionary with keys from attribute's options
         # If is not leaf, values are children nodes,
         # Else, values are booleans giving the answer
@@ -43,10 +43,23 @@ class Tree:
     def print_tree(self):
 
         print (self.attribute)
-        
+
         for key, value in self.options.items():
             print(key)
             if type(value) == Tree:
                 value.print_tree()
             else:
                 print(value)
+
+    def print_probabilistic_tree(self,spaces):
+
+        print (self.attribute)
+
+        for key, value in self.options.items():
+            item , prob = value
+            indent = ' '*spaces
+            print(indent+key+' '+str(prob))
+            if type(item) == Tree:
+                item.print_probabilistic_tree(spaces+10)
+            else:
+                print(indent+ str(item))
