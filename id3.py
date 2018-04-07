@@ -118,12 +118,12 @@ def id3_generate_better(ds, attributes, continuousOption = 1, missingOption = 2)
     # No Border Case
     else:
 
+        # 0. Fill missing values if option determines so
+        if missingOption == 0:
+            fill_missing_values(ds, attributes)
+
         # 1. Get the attribute that best classifies ds (highest information gain)
-        att = ""
-        if continuousOption == 0:
-            att = get_best_continuous_attribute(ds, attributes)
-        else:
-            att = get_best_attribute(ds, attributes)
+        att = get_best_attribute(ds, attributes, continuousOption == 0)
 
         # Aux: Delete the chosen attribute, it will not be used in further iterations
         new_attributes = list(attributes)
@@ -174,21 +174,11 @@ def id3_generate_better(ds, attributes, continuousOption = 1, missingOption = 2)
 def get_continuity(ds, att):
 
     for x in ds:
-       if x[att] != '':
+       if x[att] != '?':
             if type(x[att]) == int or type(x[att]) == float:
                 return True
             else:
                 return False 
-
-# Given a dataset "ds" and a list "attributes", returns the attribute that gives the highest information gain
-# taking into account that some attributes could be continuous
-def get_best_continuous_attribute(ds, attributes):
-    ret = attributes[0]
-    for att in attributes:
-        isContinuous = get_continuity(ds,att)
-        if get_gain(ds, att, isContinuous) > get_gain(ds, ret, isContinuous):
-            ret = att
-    return ret
 
 # Given a dataset "ds" and a continuous attribute "att", splits att's domain into intervals based on the changes in the 
 # result function, returning them as discrete values
@@ -226,6 +216,42 @@ def get_examples_for_interval(examples, att, interval, intervals):
     else:
         return [x for x in examples if x[att] > intervals[index-1]]
 
+# Checks if "att" has missing values in "ds"
+def get_missing(ds, att):
+
+    for x in ds:
+        if x[att] == '?':
+            return True
+        
+    return False 
+
+# Given a dataset "ds" fills every missing value with the most likely value for that attribute
+def fill_missing_values(ds, attributes):
+    for att in attributes:
+        if get_missing(ds,att):
+            set_most_likely_value(ds, att)
+
+# Given a dataset "ds" and an attribute "att" with missing values, fills them with the most likely value of "att" in "ds"
+def set_most_likely_value(ds, att):
+
+    values = get_possible_values(ds, att)
+    most_likely = ''
+    count = 0
+    
+    for value in values:
+        large = len([x for x in ds if x[att] == value])
+        if (large) > count:
+            most_likely = value
+            count = large
+
+    for example in ds:
+        if example[att] == '?':
+            example[att] = most_likely
+
+# Given a dataset "ds" and an attribute "att" with missing values, returns a list composed by examples with that value missing
+def get_unknown_examples_for_value(ds,att):
+    return [x for x in ds if x[att] == '?']
+
 # AUXILIAR METHODS --------------------------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -249,10 +275,11 @@ def proportion_examples_true(ds):
     return len(positives) / len(ds)
 
 # Given a dataset "ds" and a list "attributes", returns the attribute that gives the highest information gain
-def get_best_attribute(ds, attributes):
+def get_best_attribute(ds, attributes, continuous = False):
     ret = attributes[0]
     for att in attributes:
-        if get_gain(ds, att) > get_gain(ds, ret):
+        isContinuous = get_continuity(ds,att) and continuous
+        if get_gain(ds, att, isContinuous) > get_gain(ds, ret, isContinuous):
             ret = att
     return ret
 
@@ -280,6 +307,8 @@ def get_possible_values(ds, att):
 
     for x in ds:
         possible_values.add(x[att])
+
+    possible_values.discard('?')
 
     return sorted(list(possible_values))
 

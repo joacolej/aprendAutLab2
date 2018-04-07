@@ -14,7 +14,6 @@ dataset1 = [ {'dedicacion': 'alta'  ,'dificultad': 'alta',  'horario': 'nocturno
          {'dedicacion': 'media' ,'dificultad': 'alta',  'horario': 'matutino', 'humedad': 'alta',  'humordoc': 'bueno', 'truth': False}
         ]
 
-
 # Dataset used an example for testing
 dataset2 = [ {'temperatura': 'calida' ,'lluvia': 'si',  'horario': 'matutino', 'truth': True},
          {'temperatura': 'templada' ,'lluvia': 'no', 'horario': 'matutino', 'truth': True},
@@ -22,27 +21,36 @@ dataset2 = [ {'temperatura': 'calida' ,'lluvia': 'si',  'horario': 'matutino', '
          {'temperatura': 'calida' ,'lluvia': 'no',  'horario': 'matutino', 'truth': False},
          {'temperatura': 'calida' ,'lluvia': 'no',  'horario': 'nocturno', 'truth': True}
         ]
-
+# Dataset used for testing continuous values
 dataset3 = [ {'temperatura': 10 ,'lluvia': 'si',  'horario': 'matutino', 'truth': True},
          {'temperatura': 40 ,'lluvia': 'no',  'horario': 'matutino', 'truth': False},
-         {'temperatura': 20 ,'lluvia': 'no', 'horario': 'matutino', 'truth': True},
+         {'temperatura': 10 ,'lluvia': 'no', 'horario': 'matutino', 'truth': True},
          {'temperatura': 50 ,'lluvia': 'no',  'horario': 'nocturno', 'truth': True},
          {'temperatura': 30 ,'lluvia': 'si',  'horario': 'nocturno', 'truth': False}
         ]
 
-dataset4 = [ {'clima': 'calido' ,'lluvia': 'si',  'horario': 'matutino', 'truth': True},
-         {'clima': 'templado' ,'lluvia': 'no', 'horario': 'matutino', 'truth': True},
-         {'clima': 'frio' ,'lluvia': 'si',  'horario': 'nocturno', 'truth': False},
-         {'clima': 'calido' ,'lluvia': 'no',  'horario': 'matutino', 'truth': False}
+# Dataset used for testing missing values
+dataset4 = [  {'temperatura': 'fria' ,'lluvia': 'si',  'horario': 'nocturno', 'truth': False},
+			{'temperatura': 'calida' ,'lluvia': 'si',  'horario': 'matutino', 'truth': True},
+         {'temperatura': 'templada' ,'lluvia': 'no', 'horario': 'matutino', 'truth': True},
+         {'temperatura': '?' ,'lluvia': 'no',  'horario': 'matutino', 'truth': False},
+         {'temperatura': '?' ,'lluvia': 'no',  'horario': 'nocturno', 'truth': True}
         ]
 
-
+# Dataset used for testing continuous and missing values
+dataset5 = [ {'temperatura': 10 ,'lluvia': 'si',  'horario': 'matutino', 'truth': True},
+         {'temperatura': 40 ,'lluvia': 'no',  'horario': 'matutino', 'truth': False},
+         {'temperatura': 10 ,'lluvia': 'no', 'horario': 'matutino', 'truth': True},
+         {'temperatura': 50 ,'lluvia': 'no',  'horario': 'nocturno', 'truth': True},
+         {'temperatura': 30 ,'lluvia': 'si',  'horario': 'nocturno', 'truth': False}
+        ]
+        
 # MAIN --------------------------------------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
 
-	ds = dataset3
+	ds = dataset1
 	attributes = get_attributes_from_dataset(ds)
 	tree = None
 
