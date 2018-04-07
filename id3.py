@@ -86,17 +86,16 @@ def id3_classify(tree, example):
 
 # Using a dataset "ds" of training examples and a list "attributes" of attributes, generates a decision tree using ID3
 # This version of ID3 adds an strategy for continuous and missing values. The arguments "continuousOption" and "missingOption"
-# are for choosing which strategy will be used. There are 3 possible values for each:
+# are for choosing which strategy will be used. There are 2 and 3 possible values for each respectively:
 # -------------------------------------------------------------------------------------------------------------------------
 # Continuous 0: Splits the continuous range in intervals based on when the result function changes its value, adding a branch for each one
-# Continuous 1: 
-# Continuous different than 0,1: Does not support continuous values
+# Continuous different than 0: Does not support continuous values
 # -------------------------------------------------------------------------------------------------------------------------
 # Missing 0: Adds to the missing values the most likely value in the current dataset for that attribute
 # Missing 1: Adds a probability to each branch of the attribute if it has missing values, which will be used to classify
 # Missing different than 0,1: Does not support empty values
 # -------------------------------------------------------------------------------------------------------------------------
-def id3_generate_better(ds, attributes, continuousOption = 2, missingOption = 2):
+def id3_generate_better(ds, attributes, continuousOption = 1, missingOption = 2):
 
     # Border Case: Every example is labeled true
     # Returns true (dont care if is root or not, ID3 is recursive)
