@@ -11,7 +11,8 @@ import pdb
 dataset1 = [ {'dedicacion': 'alta'  ,'dificultad': 'alta',  'horario': 'nocturno', 'humedad': 'media', 'humordoc': 'bueno', 'truth': True},
              {'dedicacion': 'baja'  ,'dificultad': 'media', 'horario': 'matutino', 'humedad': 'alta',  'humordoc': 'malo',  'truth': False},
              {'dedicacion': 'media' ,'dificultad': 'alta',  'horario': 'nocturno', 'humedad': 'media', 'humordoc': 'malo',  'truth': True},
-             {'dedicacion': 'media' ,'dificultad': 'alta',  'horario': 'matutino', 'humedad': 'alta',  'humordoc': 'bueno', 'truth': False}
+             {'dedicacion': 'media' ,'dificultad': 'alta',  'horario': 'matutino', 'humedad': 'alta',  'humordoc': 'bueno', 'truth': False},
+             {'dedicacion': 'media' ,'dificultad': 'alta',  'horario': 'tarde', 'humedad': 'alta',  'humordoc': 'bueno', 'truth': False}
            ]
 
 
@@ -27,7 +28,7 @@ dataset2 = [ {'clima': 'calido',   'lluvia': 'si',  'horario': 'matutino', 'trut
 # -------------------------------------------------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    attributes = get_attributes_from_dataset(dataset2)
-    tree = id3_generate(dataset2, attributes)
+    attributes = get_attributes_from_dataset(dataset1)
+    tree = id3_generate(dataset1, attributes)
     #tree.print_probabilistic_tree(1)
-    print (classify(tree, {'clima': '?' ,'lluvia': 'si',  'horario': 'nocturno', 'truth': True}))
+    print (classify(tree, {'dedicacion': 'baja'  ,'dificultad': 'media', 'horario': '?', 'humedad': 'alta',  'humordoc': 'malo',  'truth': False}))

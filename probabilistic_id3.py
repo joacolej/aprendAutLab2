@@ -258,14 +258,14 @@ def classify(tree, example):
             item , prob = value
             if type(item) == bool:
                 if item == True:
-                    prob_pos += 1
+                    prob_pos += 1 * prob
                 else:
-                    prob_neg += 1
+                    prob_neg += 1 * prob
             else:
                 recursion = classify(item, example)
                 prob_pos += recursion[0] * prob
                 prob_neg += recursion[1] * prob
-            return (prob_pos, prob_neg)
+        return (prob_pos, prob_neg)
     else:
         item , prob = tree.options[example[tree.attribute]]
         if type(item) == bool:
