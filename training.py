@@ -29,7 +29,7 @@ if __name__ == '__main__':
 
 	attributes = get_attributes_from_dataset(dataset1)
 	tree = id3_generate(dataset1, attributes)
-	
+
 	if type(tree) is bool:
 		print(tree)
 	else:
