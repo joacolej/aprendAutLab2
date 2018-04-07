@@ -40,13 +40,21 @@ class Tree:
     # AUXILIAR METHODS ----------------------------------------------------------------------------------------------------------------------------------
     # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-    def print_tree(self):
+    def print_tree(self, n):
 
+        for x in range(0,n):
+            print ('-', end="")
         print (self.attribute)
         
         for key, value in self.options.items():
+            
+            for x in range(0, n+1):
+                print ('-', end="")
             print(key)
+
             if type(value) == Tree:
-                value.print_tree()
+                value.print_tree(n+2)
             else:
+                for x in range(0, n+2):
+                    print('-', end="")
                 print(value)
