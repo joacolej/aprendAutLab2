@@ -76,13 +76,17 @@ def id3_classify(tree, example):
     example_att = example[current_att]
     
     # 3. Get the subtree for that value
-    branch = tree.options[example_att]
-    if type(branch) == Tree:
-        # If it is a tree, recursive call using subtree as root
-        return id3_classify(branch, example)
-    else:
-        # Otherwise, the branch is the answer
-        return branch
+    try:
+        (branch, p) = tree.options[example_att]
+        if type(branch) == Tree:
+            # If it is a tree, recursive call using subtree as root
+            return id3_classify(branch, example)
+        else:
+            # Otherwise, the branch is the answer
+            return (branch,p)
+
+    except:
+        return "Some value in the example is impossible to classify"
 
 # Using a dataset "ds" of training examples and a list "attributes" of attributes, generates a decision tree using ID3
 # This version of ID3 adds an strategy for continuous and missing values. The arguments "continuousOption" and "missingOption"
@@ -98,27 +102,23 @@ def id3_classify(tree, example):
 # -------------------------------------------------------------------------------------------------------------------------
 def id3_generate_better(ds, attributes, continuousOption = 2, missingOption = 2):
 
-    probability = 1
-    if missingOption == 1:
-        probability = -1
-
     # Border Case: Every example is labeled true
     # Returns true (dont care if is root or not, ID3 is recursive)
     if proportion_examples_true(ds) == 1:
-        return (True, probability)
+        return True
 
     # Border Case: Every example is labeled false
     # Returns false (dont care if is root, ID3 is recursive)
     elif proportion_examples_true(ds) == 0:
-        return (False, probability)
+        return False
 
     # Border Case: There are no more attributes
     # Returns the most likely value between true and false
     elif len(attributes) == 0:
         if proportion_examples_true(ds) > 0.5:
-            return (True, probability)
+            return True
         else:
-            return (False, probability)
+            return False
 
     # No Border Case
     else:
@@ -182,7 +182,47 @@ def id3_generate_better(ds, attributes, continuousOption = 2, missingOption = 2)
                 options[value] = (node, cant_examples/total_examples)
 
         # 5. Create and return the tree node
-        return Tree(att, options)
+        if missingOption == 0:
+            return Tree(att, options, get_most_likely_value(ds,att))
+        else:
+            return Tree(att, options)
+
+# Using a decision tree "tree", classifies a valid example, taking into account same parameters than id3_generate_better
+def id3_classify_better(tree, example, continuousOption = 2, missingOption = 2):
+
+    # 1. Choose the current attribute in the tree
+    current_att = tree.attribute
+
+    # 2. Get the value in the example for the current attribute
+    example_att = example[current_att]
+
+    # Aux: Cast to number if it is intended to be 
+    if example_att.replace('.','',1).isdigit():
+        example_att = float(example_att)
+
+    if missingOption == 0 and example_att == '?':
+        example_att = tree.most_likely
+
+    # 3. Get the subtree for that value
+    try:
+
+        if continuousOption == 0:    
+            for x in tree.options:
+                if x == 'bigger' or example_att <= x:
+                    example_att = x
+                    break
+
+        (branch, p) = tree.options[example_att]
+
+        if type(branch) == Tree:
+            # If it is a tree, recursive call using subtree as root
+            return id3_classify_better(branch, example, continuousOption, missingOption)
+        else:
+            # Otherwise, the branch is the answer
+            return (branch,p)
+
+    except error:
+        return "Some value in the example is impossible to classify"
 
 # AUXILIAR METHODS PART B -------------------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -262,7 +302,7 @@ def fill_missing_values(ds, attributes):
             set_most_likely_value(ds, att)
 
 # Given a dataset "ds" and an attribute "att" with missing values, fills them with the most likely value of "att" in "ds"
-def set_most_likely_value(ds, att):
+def get_most_likely_value(ds, att):
 
     values = get_possible_values(ds, att)
     most_likely = ''
@@ -274,6 +314,13 @@ def set_most_likely_value(ds, att):
             most_likely = value
             count = large
 
+    return most_likely
+
+# Given a dataset "ds" and an attribute "att" with missing values, fills them with the most likely value of "att" in "ds"
+def set_most_likely_value(ds, att):
+
+    most_likely = get_most_likely_value(ds,att)
+    
     for example in ds:
         if example[att] == '?':
             example[att] = most_likely

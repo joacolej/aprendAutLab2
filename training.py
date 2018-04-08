@@ -32,11 +32,11 @@ dataset3 = [ {'temperatura': 10 ,'lluvia': 'si',  'horario': 'matutino', 'truth'
          {'temperatura': 21 ,'lluvia': 'si',  'horario': 'nocturno', 'truth': True},
          {'temperatura': 21 ,'lluvia': 'no',  'horario': 'nocturno', 'truth': True},
          {'temperatura': 22 ,'lluvia': 'no',  'horario': 'matutino', 'truth': True},
-         {'temperatura': 22 ,'lluvia': 'no',  'horario': 'nocturno', 'truth': False},
+         {'temperatura': 22 ,'lluvia': 'no',  'horario': 'nocturno', 'truth': True},
          {'temperatura': 24 ,'lluvia': 'si',  'horario': 'matutino', 'truth': True},
          {'temperatura': 25 ,'lluvia': 'no',  'horario': 'matutino', 'truth': False},
          {'temperatura': 27 ,'lluvia': 'no',  'horario': 'matutino', 'truth': False},
-         {'temperatura': 27 ,'lluvia': 'no',  'horario': 'nocturno', 'truth': False}
+         {'temperatura': 27 ,'lluvia': 'no',  'horario': 'nocturno', 'truth': }
         ]
 
 # Dataset used for testing missing values
@@ -60,7 +60,7 @@ dataset5 = [ {'temperatura': 10 ,'lluvia': 'si',  'horario': 'matutino', 'truth'
 
 if __name__ == '__main__':
 
-	ds = dataset1
+	ds = dataset5
 	attributes = get_attributes_from_dataset(ds)
 	tree = None
 

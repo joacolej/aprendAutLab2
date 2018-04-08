@@ -10,11 +10,15 @@ class Tree:
     # CONSTRUCTOR ---------------------------------------------------------------------------------------------------------------------------------------
     # ---------------------------------------------------------------------------------------------------------------------------------------------------
     
-    def __init__(self, attribute, childs = None):
+    def __init__(self, attribute, childs = None, most_likely = None):
 
         # String identifying node's attribute
         self.attribute = attribute 
         
+        # String with most likely value for tree's attribute
+        # It is used when a new example comes with missing value 
+        self.most_likely = most_likely
+
         # Dictionary with keys from attribute's options
         # If is not leaf, values are children nodes,
         # Else, values are booleans giving the answer
