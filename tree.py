@@ -48,12 +48,14 @@ class Tree:
         
         for key, value in self.options.items():
             
+            (node,p) = value
+
             for x in range(0, n+1):
                 print ('-', end="")
-            print(key)
+            print((key,p))
 
-            if type(value) == Tree:
-                value.print_tree(n+2)
+            if type(node) == Tree:
+                node.print_tree(n+2)
             else:
                 for x in range(0, n+2):
                     print('-', end="")

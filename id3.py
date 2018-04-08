@@ -89,31 +89,36 @@ def id3_classify(tree, example):
 # are for choosing which strategy will be used. There are 2 and 3 possible values for each respectively:
 # -------------------------------------------------------------------------------------------------------------------------
 # Continuous 0: Splits the continuous range in intervals based on when the result function changes its value, adding a branch for each one
-# Continuous different than 0: Does not support continuous values
+# Continuous 1: Penalizes attributes that have many different values and split the dataset, reducing their cost
+# Continuous different than 0,1: Does not support continuous values
 # -------------------------------------------------------------------------------------------------------------------------
 # Missing 0: Adds to the missing values the most likely value in the current dataset for that attribute
 # Missing 1: Adds a probability to each branch of the attribute if it has missing values, which will be used to classify
 # Missing different than 0,1: Does not support empty values
 # -------------------------------------------------------------------------------------------------------------------------
-def id3_generate_better(ds, attributes, continuousOption = 1, missingOption = 2):
+def id3_generate_better(ds, attributes, continuousOption = 2, missingOption = 2):
+
+    probability = 1
+    if missingOption == 1:
+        probability = -1
 
     # Border Case: Every example is labeled true
     # Returns true (dont care if is root or not, ID3 is recursive)
     if proportion_examples_true(ds) == 1:
-        return True
+        return (True, probability)
 
     # Border Case: Every example is labeled false
     # Returns false (dont care if is root, ID3 is recursive)
     elif proportion_examples_true(ds) == 0:
-        return False
+        return (False, probability)
 
     # Border Case: There are no more attributes
     # Returns the most likely value between true and false
     elif len(attributes) == 0:
         if proportion_examples_true(ds) > 0.5:
-            return True
+            return (True, probability)
         else:
-            return False
+            return (False, probability)
 
     # No Border Case
     else:
@@ -123,7 +128,7 @@ def id3_generate_better(ds, attributes, continuousOption = 1, missingOption = 2)
             fill_missing_values(ds, attributes)
 
         # 1. Get the attribute that best classifies ds (highest information gain)
-        att = get_best_attribute(ds, attributes, continuousOption == 0)
+        att = get_best_attribute(ds, attributes, continuousOption == 0, continuousOption == 1)
 
         # Aux: Delete the chosen attribute, it will not be used in further iterations
         new_attributes = list(attributes)
@@ -145,24 +150,36 @@ def id3_generate_better(ds, attributes, continuousOption = 1, missingOption = 2)
             # 4.1. Get a list of examples that match value "value" in attribute "att"
             examples_vi = []
             if continuousOption == 0 and get_continuity(ds, att):
-                examples_vi = get_examples_for_interval(ds, att, value, possible_values)
+                if missingOption == 1:
+                    new_ds = [x for x in ds if x not in get_unknown_examples_for_value(ds, att)]
+                    examples_vi = get_examples_for_interval(new_ds, att, value, possible_values)
+                else:
+                    examples_vi = get_examples_for_interval(ds, att, value, possible_values)
             else:
                 examples_vi = get_examples_for_value(ds, att, value)
 
-            # 4.2. If there are no examples for the value, the answer is the most likely value between true and false
+            # 4.2 Calculates probability of current attribute (default -1, when missingOption != 1)
+            # It will be used when to classify a new example with missing values
+            total_examples = 1
+            cant_examples = -1
+            if missingOption == 1:
+                total_examples = len(ds) - len(get_unknown_examples_for_value(ds,att))
+                cant_examples = len(examples_vi)
+
+            # 4.3. If there are no examples for the value, the answer is the most likely value between true and false
             if len(examples_vi) == 0:
                 if proportion_examples_true(ds) > 0.5:
-                    options[value]= True
+                    options[value]= (True, cant_examples/total_examples)
                 else:
-                    options[value] = False
+                    options[value] = (False, cant_examples/total_examples)
 
-            # 4.3. If there are still examples for the value, triggers recursive execution
+            # 4.4. If there are still examples for the value, triggers recursive execution
             # This time using the set of examples with value "value" in "att" as dataset
             # and excluding "att" from the list of attributes
             else:
                 
-                node = id3_generate(examples_vi, new_attributes)
-                options[value] = node
+                node = id3_generate_better(examples_vi, new_attributes, continuousOption, missingOption)
+                options[value] = (node, cant_examples/total_examples)
 
         # 5. Create and return the tree node
         return Tree(att, options)
@@ -173,6 +190,7 @@ def id3_generate_better(ds, attributes, continuousOption = 1, missingOption = 2)
 # Checks if "att" is continuous in "ds"
 def get_continuity(ds, att):
 
+    # If the first not missing value is numeric returns true, otherwise false
     for x in ds:
        if x[att] != '?':
             if type(x[att]) == int or type(x[att]) == float:
@@ -184,22 +202,27 @@ def get_continuity(ds, att):
 # result function, returning them as discrete values
 def get_possible_continuous_values(ds, att):
     
+    # Get out of the continuous range the missing values
+    ds = [x for x in ds if x not in get_unknown_examples_for_value(ds, att)]
+    
+    # Sort training examples by att's value
     sorted_ds = sorted(ds, key=operator.itemgetter(att))
 
     possible_values = []
     old_res = None
     old_x = None
 
+    # Iterate through sorted training examples, adding a new value to whenever the answer changes
+    # adding the median value between the current value and the previous one
     for x in sorted_ds:
-
         res = x['truth']
         if old_res != None and res != old_res:
             mid = ((x[att] - old_x) / 2) + old_x
             possible_values.append(mid)
-
         old_res = res
         old_x = x[att]
 
+    # Always add at the end a value to represent the values greater than the great interval
     possible_values.append("bigger")
 
     return possible_values
@@ -208,21 +231,28 @@ def get_possible_continuous_values(ds, att):
 # which are between interval
 def get_examples_for_interval(examples, att, interval, intervals):
 
+    # Get position of interval in list of intervals (always sorted)
     index = intervals.index(interval)
+    
+    # If it is the first element, just check if the value is lesser
     if index == 0:
         return [x for x in examples if x[att] <= interval]
+    # If it is the last element, just check if the value is greater
     elif interval != "bigger":
         return [x for x in examples if x[att] <= interval and x[att] > intervals[index-1]]
+    # If it is an intermediate interval, check if the value is in there
     else:
         return [x for x in examples if x[att] > intervals[index-1]]
 
 # Checks if "att" has missing values in "ds"
 def get_missing(ds, att):
 
+    # If there is some missing value returns true
     for x in ds:
         if x[att] == '?':
             return True
-        
+    
+    # If there are not missing values at all, returns false
     return False 
 
 # Given a dataset "ds" fills every missing value with the most likely value for that attribute
@@ -275,18 +305,19 @@ def proportion_examples_true(ds):
     return len(positives) / len(ds)
 
 # Given a dataset "ds" and a list "attributes", returns the attribute that gives the highest information gain
-def get_best_attribute(ds, attributes, continuous = False):
+def get_best_attribute(ds, attributes, continuous = False, penalized = False):
     ret = attributes[0]
     for att in attributes:
         isContinuous = get_continuity(ds,att) and continuous
-        if get_gain(ds, att, isContinuous) > get_gain(ds, ret, isContinuous):
+        if get_gain(ds, att, isContinuous, penalized) > get_gain(ds, ret, isContinuous, penalized):
             ret = att
     return ret
 
 # Given a dataset "ds" and an attribute "att", returns the information gain in "ds" for "attribute"
 # If isContinuous is true, takes into account that att is continuous and gets its intervals
-def get_gain(ds, att, isContinuous = False):
+def get_gain(ds, att, isContinuous = False, isPenalized = False):
     entropia = 0
+    split = 0
     cant_ejemplos = len(ds)
 
     possible_values = []
@@ -298,9 +329,14 @@ def get_gain(ds, att, isContinuous = False):
     for value in possible_values:
         subset = get_examples_for_value(ds, att, value)
         entropia += ((len(subset)/cant_ejemplos) * entropy(subset))
+        if len(subset) != 0:
+            split += ((len(subset)/cant_ejemplos) * math.log((len(subset)/cant_ejemplos), 2))
 
-    return entropy(ds) - entropia
-
+    if isPenalized and split != 0:
+        return (entropy(ds) - entropia) / (split * 1)
+    else:
+        return (entropy(ds) - entropia)
+        
 # Given a dataset "ds" and an attribute "att", returns the possibles values for "attribute" in "ds"
 def get_possible_values(ds, att):
     possible_values = set()
