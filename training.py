@@ -61,10 +61,11 @@ datasets[4] = [ {'temperatura': 10 ,'lluvia': 'si',  'horario': 'matutino', 'tru
         ]
 
 # Real dataset used for part C
-#dataset6 = arff.loadarff('data/autismo.arff')
-#df = pd.DataFrame(dataset6[0])
-#dataset6 = df.to_dict('records')
-#dataset6 = get_formatted_dataset(dataset6)
+dataset5 = arff.loadarff('data/autismo.arff')
+df = pd.DataFrame(dataset5[0])
+dataset5 = df.to_dict('records')
+dataset5 = get_formatted_dataset(dataset5)
+datasets[5] = dataset5
 
 # MAIN --------------------------------------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------------------------------------------------

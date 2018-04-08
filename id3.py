@@ -372,8 +372,9 @@ def proportion_examples_true(ds):
 def get_best_attribute(ds, attributes, continuous = False, penalized = False):
     ret = attributes[0]
     for att in attributes:
-        isContinuous = get_continuity(ds,att) and continuous
-        if get_gain(ds, att, isContinuous, penalized) > get_gain(ds, ret, isContinuous, penalized):
+        isContinuousAtt = get_continuity(ds,att) and continuous
+        isContinuousRet = get_continuity(ds,ret) and continuous
+        if get_gain(ds, att, isContinuousAtt, penalized) > get_gain(ds, ret, isContinuousRet, penalized):
             ret = att
     return ret
 
