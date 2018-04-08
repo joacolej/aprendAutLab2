@@ -52,9 +52,9 @@ datasets[3] = [  {'temperatura': 'fria' ,'lluvia': 'si',  'horario': 'nocturno',
 
 # Dataset used for testing continuous and missing values
 datasets[4] = [ {'temperatura': 10 ,'lluvia': 'si',  'horario': 'matutino', 'truth': True},
-         {'temperatura': 10 ,'lluvia': 'no',  'horario': 'matutino', 'truth': False},
-         {'temperatura': '?' ,'lluvia': 'no', 'horario': 'matutino', 'truth': True},
-         {'temperatura': 50 ,'lluvia': 'no',  'horario': 'nocturno', 'truth': True},
+         {'temperatura': 20 ,'lluvia': 'no',  'horario': 'matutino', 'truth': True},
+         {'temperatura': '?' ,'lluvia': 'no', 'horario': 'matutino', 'truth': False},
+         {'temperatura': 10 ,'lluvia': 'no',  'horario': 'nocturno', 'truth': False},
          {'temperatura': 30 ,'lluvia': 'si',  'horario': 'nocturno', 'truth': False}
         ]
 
@@ -109,7 +109,17 @@ if __name__ == '__main__':
                                 for att in attributes:
                                         example[att] = values[i]
                                         i = i + 1
-                                print(id3_classify_better(tree, example,continuous, missing))
+
+                                res, p = id3_classify_better(tree, example,continuous, missing)
+                                if missing != 1:
+                                        print(res)
+                                else:
+                                        if (res,p) == (1,0):
+                                                print(True)
+                                        elif (res,p) == (0,1):
+                                                print(False)
+                                        else:
+                                                print("True: " + str(res) + " False: " + str(p))
 
                         except error:
                                 print("The entered example does not match the amount of attributes")
