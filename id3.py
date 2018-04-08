@@ -257,7 +257,7 @@ def get_possible_continuous_values(ds, att):
     for x in sorted_ds:
         res = x['truth']
         if old_res != None and res != old_res:
-            mid = ((x[att] - old_x) / 2) + old_x
+            mid = ((float(x[att]) - float(old_x)) / 2) + float(old_x)
             possible_values.append(mid)
         old_res = res
         old_x = x[att]
@@ -331,6 +331,23 @@ def get_unknown_examples_for_value(ds,att):
 
 # AUXILIAR METHODS --------------------------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Given a dataset "ds" of training examples, returns a list of each attribute names
+def get_formatted_dataset(ds):
+
+    for x in ds:
+
+        x['truth'] = x.pop('Class/ASD')
+        if x['truth'] == b'NO':
+            x['truth'] = False
+        elif x['truth'] == b'YES':
+            x['truth'] = True
+
+        for key,val in x.items():
+            if type(val) == bytes:
+                x[key] = val.decode("utf-8")
+
+    return ds
 
 # Given a dataset "ds" of training examples, returns a list of each attribute names
 def get_attributes_from_dataset(ds):

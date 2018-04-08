@@ -56,11 +56,16 @@ class Tree:
 
             for x in range(0, n+1):
                 print ('-', end="")
-            print((key,p))
+
+            if p == -1:
+                print(key)
+            else:
+                print((key,p))
 
             if type(node) == Tree:
                 node.print_tree(n+2)
             else:
                 for x in range(0, n+2):
                     print('-', end="")
-                print(value)
+                print(node)
+                
