@@ -200,26 +200,68 @@ def id3_classify_better(tree, example, continuousOption = 2, missingOption = 2):
     if example_att.replace('.','',1).isdigit():
         example_att = float(example_att)
 
-    if missingOption == 0 and example_att == '?':
+    # Aux: Check if new example's value in "att" is unknown
+    # If it is and missingOption = 0, it is substituted by the most likely value for "att"
+    if example_att == '?' and missingOption == 0:
         example_att = tree.most_likely
 
-    # 3. Get the subtree for that value
+    # Aux: Check if new example's value in "att" is unknown
+    # If it is and missingOption = 1, from now on answer will be calculated based on probability
+    elif example_att == '?' and missingOption == 1:
+
+        prob_pos = 0
+        prob_neg = 0
+
+        # Starting in this node, probability for each branch has to be calculated and added
+        for key, value in tree.options.items():
+
+            node,p = value
+
+            # If it is a leaf node, just adds probability to the corresponding positive or negatuve value
+            if type(node) == bool:
+                if node == True:
+                    prob_pos += 1 * p
+                else:
+                    prob_neg += 1 * p
+
+            # If it is not, gets recursive probability taking into account probability in all next branches
+            else:
+                recursion = id3_classify_better(node, example, continuousOption, missingOption)
+                prob_pos += recursion[0] * p
+                prob_neg += recursion[1] * p
+
+        return (prob_pos, prob_neg)
+
+
+    # 3. If there are no missing values for this attribute, get the subtree for that value
     try:
 
+        # Aux: Used for getting the right value when there are intervals
         if continuousOption == 0:    
             for x in tree.options:
                 if x == 'bigger' or example_att <= x:
                     example_att = x
                     break
 
+        # Get correct branch and its probability
         (branch, p) = tree.options[example_att]
 
+        # If it is a tree, recursive call using subtree as root
         if type(branch) == Tree:
-            # If it is a tree, recursive call using subtree as root
             return id3_classify_better(branch, example, continuousOption, missingOption)
+        
+        # Otherwise, the branch is the answer
         else:
-            # Otherwise, the branch is the answer
-            return (branch,p)
+            # Aux: If missingOption = 1, classifier must handle probabilities. There is a chance that some value
+            # for the example is missing, so the result must be returned in a correct way for the upper recursion
+            # to handle it. The returned pair corresponds to (positive_prob, negative_prob).
+            if missingOption == 1:
+                if branch:
+                    return (1,0)
+                else:
+                    return (0,1)
+            else:
+                return (branch,p)
 
     except error:
         return "Some value in the example is impossible to classify"
