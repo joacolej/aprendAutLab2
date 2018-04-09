@@ -1,8 +1,11 @@
 # DEPENDENCIES ------------------------------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------------------------------------------------
-from id3 import id3_classify, id3_classify_better, id3_generate, id3_generate_better, get_attributes_from_dataset
+import tree_model.id3 as id3
 import sys
 import pdb
+from scipy.io import arff
+import pandas as pd
+
 
 # DATA --------------------------------------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -59,10 +62,11 @@ datasets[4] = [ {'temperatura': 10 ,'lluvia': 'si',  'horario': 'matutino', 'tru
         ]
 
 # Real dataset used for part C
-#dataset6 = arff.loadarff('data/autismo.arff')
-#df = pd.DataFrame(dataset6[0])
-#dataset6 = df.to_dict('records')
-#dataset6 = get_formatted_dataset(dataset6)
+dataset5 = arff.loadarff('data/autismo.arff')
+df = pd.DataFrame(dataset5[0])
+dataset5 = df.to_dict('records')
+dataset5 = id3.get_formatted_dataset(dataset5)
+datasets[5] = dataset5
 
 # MAIN --------------------------------------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -70,18 +74,18 @@ datasets[4] = [ {'temperatura': 10 ,'lluvia': 'si',  'horario': 'matutino', 'tru
 if __name__ == '__main__':
 
         ds = datasets[int(sys.argv[1])]
-        attributes = get_attributes_from_dataset(ds)
+        attributes = id3.get_attributes_from_dataset(ds)
         tree = None
 
         args = len(sys.argv)
         continuous = 2
         missing = 2
         if args == 2:
-                tree = id3_generate_better(ds, attributes)
+                tree = id3.id3_generate_better(ds, attributes)
         else:
                 continuous = int(sys.argv[2])
                 missing = int(sys.argv[3])
-                tree = id3_generate_better(ds, attributes, continuous, missing)
+                tree = id3.id3_generate_better(ds, attributes, continuous, missing)
         
         print()
         print("-> Decision tree: ")
@@ -110,7 +114,7 @@ if __name__ == '__main__':
                                         example[att] = values[i]
                                         i = i + 1
 
-                                res, p = id3_classify_better(tree, example,continuous, missing)
+                                res, p = id3.id3_classify_better(tree, example,continuous, missing)
                                 if missing != 1:
                                         print(res)
                                 else:

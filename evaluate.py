@@ -2,7 +2,6 @@ import random
 import math
 from model import Model
 
-
 def normal_validation(trainDs, evaluate, model):
     model.train(trainDs)
     cant, uneval = get_correct(evaluate, model)

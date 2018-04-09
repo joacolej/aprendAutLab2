@@ -1,4 +1,4 @@
-from id3 import get_attributes_from_dataset, id3_generate_better, id3_classify_better
+from tree_model.id3 import get_attributes_from_dataset, id3_generate_better, id3_classify_better
 
 class Model:
     def __init__(self,continuousOption= 2, missingOption = 2):

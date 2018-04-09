@@ -1,0 +1,22 @@
+Guía básica y breve de como ejecutar el programa:
+
+- Ejecutables:
+--> Los programas ejecutables son 2: main.py y training.py
+--> main.py genera un árbol para un dataset, lo imprime y permite clasificar ejemplos ingresados por consola
+--> training.py genera un árbol para un dataset y lo corre contra un conjunto de prueba, determinando su porcentaje de éxito
+
+- Datasets:
+--> Ambos cuentan con varios dataset para utilizar (incluyendo el dataset del teórico y el de la parte C)
+
+- Parámetros:
+--> main.py requiere 3 parámetros:
+----> Dataset n (0..5): Elige el dataset n para entrenar y clasificar.
+----> Opción Atributos Continuos op1 (0,1,2): Elige la estrategia op1 para tratar atributos continuos (0 intervalos, 1 penalizacion, 2 nada)
+----> Opción Atributos Faltantes op2 (0,1,2): Elige la estrategia op2 para tratar atributos faltantes (0 sustitución por más común, 1 probabilidades, 2 nada)
+--> training.py requiere 5 parámetros:
+----> Dataset n (0..5): Elige el dataset n para entrenar y clasificar.
+----> Opción Atributos Continuos op1 (0,1,2): Elige la estrategia op1 para tratar atributos continuos (0 intervalos, 1 penalizacion, 2 nada)
+----> Opción Atributos Faltantes op2 (0,1,2): Elige la estrategia op2 para tratar atributos faltantes (0 sustitución por más común, 1 probabilidades, 2 nada)
+----> Opción Entrenamiento op3 (0,1): Elige la forma en la cual separar el conjunto de entrenamiento para pruebas (0 separación 80 a 20, 1 validación cruzada)
+----> Seed (int): Elige una semilla para separar aleatoriamente el conjunto de entrenamiento. Para un mismo valor de seed la separación será siempre igual
+
