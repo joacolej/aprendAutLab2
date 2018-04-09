@@ -9,14 +9,14 @@ class Tree:
 
     # CONSTRUCTOR ---------------------------------------------------------------------------------------------------------------------------------------
     # ---------------------------------------------------------------------------------------------------------------------------------------------------
-    
+
     def __init__(self, attribute, childs = None, most_likely = None):
 
         # String identifying node's attribute
-        self.attribute = attribute 
-        
+        self.attribute = attribute
+
         # String with most likely value for tree's attribute
-        # It is used when a new example comes with missing value 
+        # It is used when a new example comes with missing value
         self.most_likely = most_likely
 
         # Dictionary with keys from attribute's options
@@ -49,9 +49,9 @@ class Tree:
         for x in range(0,n):
             print ('-', end="")
         print (self.attribute)
-        
+
         for key, value in self.options.items():
-            
+
             (node,p) = value
 
             for x in range(0, n+1):
@@ -68,4 +68,3 @@ class Tree:
                 for x in range(0, n+2):
                     print('-', end="")
                 print(node)
-                

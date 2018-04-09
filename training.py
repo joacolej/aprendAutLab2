@@ -1,10 +1,12 @@
 # DEPENDENCIES ------------------------------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------------------------------------------------
 from id3 import id3_generate, id3_generate_better, get_formatted_dataset, get_attributes_from_dataset
+from evaluate import cross_validation, normal_validation, split_data
 import sys
 import pdb
 from scipy.io import arff
 import pandas as pd
+from model import Model
 
 # DATA --------------------------------------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -73,16 +75,25 @@ datasets[5] = dataset5
 if __name__ == '__main__':
 
 	ds = datasets[int(sys.argv[1])]
-	attributes = get_attributes_from_dataset(ds)
-	tree = None
+	model = None
 
 	args = len(sys.argv)
 	if args == 2:
-		tree = id3_generate_better(ds, attributes)
+		model = Model()
+		#tree = id3_generate_better(ds, attributes)
 	else:
-		tree = id3_generate_better(ds, attributes, int(sys.argv[2]), int(sys.argv[3]))
-	
-	if type(tree) is bool:
-		print(tree)
-	else:
-		tree.print_tree(0)
+		model = Model(int(sys.argv[2]), int(sys.argv[3]))
+
+
+		train, test = split_data(ds, int(sys.argv[5]), 0.8)
+		if int(sys.argv[4])==0:
+			normal_validation(train,test,model)
+		if int(sys.argv[4])==1:
+			cross_validation(10,train+test, model)
+
+
+
+	#if type(tree) is bool:
+	#	print(tree)
+	#else:
+	#	tree.print_tree(0)

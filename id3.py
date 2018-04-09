@@ -68,13 +68,13 @@ def id3_generate(ds, attributes):
 
 # Using a decision tree "tree", classifies a valid example
 def id3_classify(tree, example):
-    
+
     # 1. Choose the current attribute in the tree
     current_att = tree.attribute
 
     # 2. Get the value in the example for the current attribute
     example_att = example[current_att]
-    
+
     # 3. Get the subtree for that value
     try:
         (branch, p) = tree.options[example_att]
@@ -177,7 +177,7 @@ def id3_generate_better(ds, attributes, continuousOption = 2, missingOption = 2)
             # This time using the set of examples with value "value" in "att" as dataset
             # and excluding "att" from the list of attributes
             else:
-                
+
                 node = id3_generate_better(examples_vi, new_attributes, continuousOption, missingOption)
                 options[value] = (node, cant_examples/total_examples)
 
@@ -196,9 +196,9 @@ def id3_classify_better(tree, example, continuousOption = 2, missingOption = 2):
     # 2. Get the value in the example for the current attribute
     example_att = example[current_att]
 
-    # Aux: Cast to number if it is intended to be 
-    if example_att.replace('.','',1).isdigit():
-        example_att = float(example_att)
+    # Aux: Cast to number if it is intended to be
+#    if example_att.replace('.','',1).isdigit():
+#        example_att = float(example_att)
 
     # Aux: Check if new example's value in "att" is unknown
     # If it is and missingOption = 0, it is substituted by the most likely value for "att"
@@ -235,21 +235,18 @@ def id3_classify_better(tree, example, continuousOption = 2, missingOption = 2):
 
     # 3. If there are no missing values for this attribute, get the subtree for that value
     try:
-
         # Aux: Used for getting the right value when there are intervals
-        if continuousOption == 0:    
+        if continuousOption == 0:
             for x in tree.options:
                 if x == 'bigger' or example_att <= x:
                     example_att = x
                     break
-
         # Get correct branch and its probability
         (branch, p) = tree.options[example_att]
-
         # If it is a tree, recursive call using subtree as root
         if type(branch) == Tree:
             return id3_classify_better(branch, example, continuousOption, missingOption)
-        
+
         # Otherwise, the branch is the answer
         else:
             # Aux: If missingOption = 1, classifier must handle probabilities. There is a chance that some value
@@ -263,7 +260,7 @@ def id3_classify_better(tree, example, continuousOption = 2, missingOption = 2):
             else:
                 return (branch,p)
 
-    except error:
+    except:
         return "Some value in the example is impossible to classify"
 
 # AUXILIAR METHODS PART B -------------------------------------------------------------------------------------------------------------------------------
@@ -278,15 +275,15 @@ def get_continuity(ds, att):
             if type(x[att]) == int or type(x[att]) == float:
                 return True
             else:
-                return False 
+                return False
 
-# Given a dataset "ds" and a continuous attribute "att", splits att's domain into intervals based on the changes in the 
+# Given a dataset "ds" and a continuous attribute "att", splits att's domain into intervals based on the changes in the
 # result function, returning them as discrete values
 def get_possible_continuous_values(ds, att):
-    
+
     # Get out of the continuous range the missing values
     ds = [x for x in ds if x not in get_unknown_examples_for_value(ds, att)]
-    
+
     # Sort training examples by att's value
     sorted_ds = sorted(ds, key=operator.itemgetter(att))
 
@@ -309,13 +306,13 @@ def get_possible_continuous_values(ds, att):
 
     return possible_values
 
-# Given a dataset "ds", a continuous attribute "att" and an interval "interval", returns the list of examples in "ds" 
+# Given a dataset "ds", a continuous attribute "att" and an interval "interval", returns the list of examples in "ds"
 # which are between interval
 def get_examples_for_interval(examples, att, interval, intervals):
 
     # Get position of interval in list of intervals (always sorted)
     index = intervals.index(interval)
-    
+
     # If it is the first element, just check if the value is lesser
     if index == 0:
         return [x for x in examples if x[att] <= interval]
@@ -333,9 +330,9 @@ def get_missing(ds, att):
     for x in ds:
         if x[att] == '?':
             return True
-    
+
     # If there are not missing values at all, returns false
-    return False 
+    return False
 
 # Given a dataset "ds" fills every missing value with the most likely value for that attribute
 def fill_missing_values(ds, attributes):
@@ -349,7 +346,7 @@ def get_most_likely_value(ds, att):
     values = get_possible_values(ds, att)
     most_likely = ''
     count = 0
-    
+
     for value in values:
         large = len([x for x in ds if x[att] == value])
         if (large) > count:
@@ -362,7 +359,7 @@ def get_most_likely_value(ds, att):
 def set_most_likely_value(ds, att):
 
     most_likely = get_most_likely_value(ds,att)
-    
+
     for example in ds:
         if example[att] == '?':
             example[att] = most_likely
@@ -378,6 +375,7 @@ def get_unknown_examples_for_value(ds,att):
 def get_formatted_dataset(ds):
 
     for x in ds:
+        x.pop('result', None)
 
         x['truth'] = x.pop('Class/ASD')
         if x['truth'] == b'NO':
@@ -443,7 +441,7 @@ def get_gain(ds, att, isContinuous = False, isPenalized = False):
         return (entropy(ds) - entropia) / (split * 1)
     else:
         return (entropy(ds) - entropia)
-        
+
 # Given a dataset "ds" and an attribute "att", returns the possibles values for "attribute" in "ds"
 def get_possible_values(ds, att):
     possible_values = set()

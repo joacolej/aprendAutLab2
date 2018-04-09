@@ -1,6 +1,17 @@
 import random
 import math
+from model import Model
 
+
+def normal_validation(trainDs, evaluate, model):
+    model.train(trainDs)
+    cant, uneval = get_correct(evaluate, model)
+    print ("Total: {}, Positivos: {}, Negativos: {}, Evaluacion: {}, Inevaluables: {}"
+            .format(len(evaluate),
+                    len([x for x in evaluate if x['truth'] == True]),
+                    len([x for x in evaluate if x['truth'] == False]),
+                    cant,
+                    uneval))
 
 def split_data(ds, randSeed, percentage):
     # Set random seed
@@ -27,7 +38,7 @@ def cross_validation(k,dataset, model):
     left_offset = 0
     right_offset = 0
 
-    for i in range(0,k,partition_size):
+    for i in range(0,k):
         # i have left elements
         if left_elements > 0:
             # move the right offset
@@ -39,27 +50,37 @@ def cross_validation(k,dataset, model):
         # move the left offset
         left_offset = right_offset
 
-
     evaluation = 0
-    for i in range(0,k):
-        no_eval_example = list(dataset).remove(dataset[i])
-        join = reduce(lambda: x,y: x+y, no_eval_example)
+    uneval = 0
+    for i in range(0,k-1):
+        join = list(filter(lambda x: x not in k_partitions[i],dataset))
 
-        # necesitamos ver como hacer esto en general
         # se entrena el modelo
         classifier = model.train(join)
 
         # evaluo
-        evaluation += get_correct(dataset[i], classifier)
+        cant, uneval = get_correct(join, model)
+        evaluation += cant
+        uneval += uneval
+
+    print ("Total: {}, Positivos: {}, Negativos: {}, Evaluacion: {}, Inevaluables: {}"
+            .format(len(dataset),
+                    len([x for x in dataset if x['truth'] == True]),
+                    len([x for x in dataset if x['truth'] == False]),
+                        evaluation/k,
+                        uneval))
 
 
-    return evaluation/k
-
-
-get_correct(examples, classifier):
+def get_correct(examples, model):
     cant = len(examples)
     corrects = 0
-    for example in range(0, cant):
-        if classifier.classify(example) == example['truth']:
-            corrects += 1
-    return corrects / cant
+    unevaluable = 0
+    for example in examples:
+        result = model.classify(example)
+        if result == None:
+            cant = cant -1
+            unevaluable += 1
+        else:
+            if  result == example['truth']:
+                corrects += 1
+    return (corrects / cant, unevaluable)
